@@ -7,8 +7,8 @@
   * first run this script as a demo a couple times without change and study the plot
   * read the slow_scan() docstring and comments
   
-3. write your quick_scan() function that does the same job as slow_scan()
-   and runs as quickly as you can make it go.
+3. fill in the quick_scan() function stub so that it does the same job 
+   as slow_scan() and runs as quickly as you can make it go.
 
 3. use timeit or similar to show how much quicker for 
 
@@ -25,7 +25,7 @@
 
 6. track your progress in git ... branch however you like, commit often.
 
-7. point me to the git hub repo or zip up the directory and email when its done
+7. point me to the git repo or zip up the directory and email when its done
 
 '''
 
@@ -41,11 +41,10 @@ def quick_scan(data, win_len, max_excursion):
     raise NotImplementedError
 
 def slow_scan(data, win_len, max_excursion):
-    '''inefficienty moving window scan of a data vector for peak-to-peak amplitude excursions
+    '''inefficient moving window scan of a data vector for peak-to-peak amplitude excursions
     
-    The aim is to separate a data vector into those intervals of data
-    that contain extreme peak-to-peak data ranges ("bad") and those
-    intervals that do not ("good").
+    The aim is to tag intervals that contain extreme peak-to-peak 
+    data ranges ("bad") vs. intervals that do not ("good").
 
     Parameters
     ----------
@@ -68,7 +67,7 @@ def slow_scan(data, win_len, max_excursion):
     result = np.zeros(n)
 
     # scan the data for excursions in sliding windows, stepping by 1
-    # this is stupid b.c. the same data get tested win_len times
+    # dopey ... data are re-tested needlessly and with slow lookups.
     for i in range(n-win_len):
 
         this_interval = data[i:i+win_len] # a slice of data to check
@@ -142,11 +141,11 @@ if __name__ == '__main__':
         n_samps = int(1e3)   
         n_chans = 1          
     else:
-        # large values typical real EEG data
+        # larger values more typical of real EEG data
         n_samps = int(1e6) 
         n_chans = 32 
 
-    # random data, smoothed a bit
+    # fetch random data, smoothed somewhat
     b, a = signal.butter(3, 0.5)
     data = uV_scale * np.random.randn(n_samps*n_chans).round(2)
     data = signal.filtfilt(b, a, data)
