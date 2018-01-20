@@ -1,6 +1,6 @@
 '''coding challenge ... speed up an inefficient function
 
-1. set up a git repo for this challenge ... local or git hub, either is fine.
+1. set up a git repo for this challenge ... download or fork 
 
 2. get oriented ... 
 
