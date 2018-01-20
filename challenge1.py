@@ -135,7 +135,7 @@ if __name__ == '__main__':
     #    n_samp : number of A/D samples and 
     #    n_chan : number of EEG data streams
 
-    uV_scale = 25 # used to scale N(0,1) to approximate uV EEG data
+    uV_scale = 25 # cosmetic only, scales N(0,1) to approximate uV EEG data
     if do_demo:
         # small values for debugging/plotting
         n_samps = int(1e3)   
