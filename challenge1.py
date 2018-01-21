@@ -98,10 +98,10 @@ def demo_plot(demo_data, results):
     good_idxs = np.where(results == 0)[0]
 
     bad_data = np.ones_like(demo_data) * np.nan
-    bad_data[bad_idxs] = data[bad_idxs]
+    bad_data[bad_idxs] = demo_data[bad_idxs]
 
     good_data = np.ones_like(demo_data) * np.nan
-    good_data[good_idxs] = data[good_idxs]
+    good_data[good_idxs] = demo_data[good_idxs]
 
     plt.close('all')
     plt.figure()
