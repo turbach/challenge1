@@ -37,7 +37,7 @@ def slow_scan(data, win_len, max_excursion):
 
     # scan the data for excursions in sliding windows, stepping by 1
     # dopey ... data are re-tested needlessly and with slow lookups.
-    for i in range(n-win_len):
+    for i in range(n-win_len+1):
 
         this_interval = data[i:i+win_len] # a slice of data to check
         this_max = this_interval.max()
