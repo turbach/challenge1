@@ -60,3 +60,31 @@ def test_quick_scan_speed_random_data(n_samples, window, max_amplitude):
     quick_scan_time = timeit(quick_scan_no_args, number=n_runs)
 
     assert quick_scan_time < slow_scan_time
+
+
+def test_benchmark_slow_scan(benchmark):
+    '''Benchmark slow_scan using a pregenerated dataset, then compare against
+       precomputed result.'''
+
+    data = np.load('tests/test_data.npy')
+    expected_result = np.load('tests/test_result.npy')
+
+    window, max_amplitude = 30, 70
+
+    actual_result = benchmark(slow_scan, data, window, max_amplitude)
+
+    assert (expected_result == actual_result).all()
+
+def test_benchmark_quick_scan(benchmark):
+    '''Benchmark quick_scan using a pregenerated dataset, then compare against
+       precomputed result.'''
+
+    data = np.load('tests/test_data.npy')
+    expected_result = np.load('tests/test_result.npy')
+
+    window, max_amplitude = 30, 70
+
+    actual_result = benchmark(quick_scan, data, window, max_amplitude)
+
+    assert (expected_result == actual_result).all()
+
