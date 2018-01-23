@@ -1,13 +1,97 @@
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 from scipy import signal
 import matplotlib.pyplot as plt
-import pdb
+import bottleneck as bn
 
-def quick_scan(data, win_len, max_excursion):
-    '''efficient moving window scan of a data vector for peak-to-peak amplitude excursions
 
-    '''
-    raise NotImplementedError
+def quick_scan(channel, window, max_amplitude):
+
+    # make sure the data is a flat array
+    channel = channel.reshape(-1)
+    n = len(channel)
+
+    # prepare result array
+    result = np.zeros(n)
+    
+    # detect amplitude excursions
+    bad_windows_mask = get_bad_windows_mask(channel, window, max_amplitude)
+
+    # return if no excursions
+    if bad_windows_mask.any() == False:
+        return result
+
+    # subset windows where excursions occur
+    flagged_windows = strided_view(channel, window)[bad_windows_mask]
+
+    # get relative bounds of bad intervals
+    rel_bad_starts, rel_bad_stops = get_rel_bad_bounds(flagged_windows, window)
+
+    # calculate absolute (within channel) indices of subintervals of 'bad' data
+    absolute_offsets = np.arange(n - window + 1)
+    abs_bad_starts = absolute_offsets[bad_windows_mask] + rel_bad_starts
+    abs_bad_stops  = absolute_offsets[bad_windows_mask] + rel_bad_stops + 1
+
+    # get locations of bad data
+    index_array = get_bad_indices(abs_bad_starts, abs_bad_stops)
+
+    # set flags at 'bad' data locations
+    result[index_array] = 1
+    
+    return result
+
+
+def get_bad_windows_mask(channel, window, max_amplitude):
+
+    # calculate amplitude within rolling windows
+    maxima = bn.move_max(channel, window=window)
+    minima = bn.move_min(channel, window=window)
+    amplitude = (maxima - minima)[window-1:]
+
+    # detect amplitude excursions
+    bad_windows_mask = amplitude > max_amplitude
+
+    return bad_windows_mask
+
+
+def get_rel_bad_bounds(flagged_windows, window):
+
+    # detect rightmost extrema within flagged windows
+    rightmost_min = window - 1 - bn.move_argmin(flagged_windows, window)[:, window-1]
+    rightmost_max = window - 1 - bn.move_argmax(flagged_windows, window)[:, window-1]
+
+    # detect leftmost extrema within flagged windows
+    flipped_flagged_windows = np.flip(flagged_windows, axis=1)
+    leftmost_min = bn.move_argmin(flipped_flagged_windows, window)[:, window-1]
+    leftmost_max = bn.move_argmax(flipped_flagged_windows, window)[:, window-1]
+
+    # calculate relative (within windows) indices of subintervals of 'bad' data
+    rel_bad_starts = np.minimum(leftmost_min, leftmost_max)
+    rel_bad_stops  = np.maximum(rightmost_min, rightmost_max)
+
+    return rel_bad_starts, rel_bad_stops
+
+
+def get_bad_indices(abs_bad_starts, abs_bad_stops):
+
+    # construct list of paired [start, stop] indices, detect unique
+    slices = np.array((abs_bad_starts, abs_bad_stops)).astype(int).T
+    unique_slices = np.unique(slices, axis=0)
+
+    # construct array index from paired indices
+    bad_interval_indices = np.array([np.arange(*s) for s in unique_slices])
+    index_array = np.unique(np.concatenate(bad_interval_indices))
+
+    return index_array
+
+
+def strided_view(data, win_len):
+    
+    shape = (len(data) - win_len + 1, win_len)
+    stride, = data.strides
+    strides = (stride, stride)
+    return as_strided(data, shape=shape, strides=strides)
+
 
 def slow_scan(data, win_len, max_excursion):
     '''inefficient moving window scan of a data vector for peak-to-peak amplitude excursions
