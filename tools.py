@@ -55,7 +55,7 @@ def slow_scan(data, win_len, max_excursion):
             bad_start = bad_idxs.min()
             bad_stop = bad_idxs.max()
 
-            result[(i+bad_start):(i+bad_stop)] = 1
+            result[(i+bad_start):(i+bad_stop+1)] = 1
 
     return result
 
