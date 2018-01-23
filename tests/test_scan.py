@@ -19,15 +19,20 @@ def generate_data(n_samples, n_channels):
 
     return data
 
-def test_quick_scan_correctness_random_data(benchmark):
+
+@pytest.mark.parametrize("n_samples", [100, 1000, 10000])
+@pytest.mark.parametrize("window", [1, 3, 10, 30])
+@pytest.mark.parametrize("max_amplitude", [10, 70])
+def test_quick_scan_correctness_random_data(n_samples, window, max_amplitude):
     '''Test output of quick_scan against the output of slow_scan on correctness,
        use randomly generated data.'''
     
-    data = generate_data(1000, 1)
-    window = 30
-    maxamp = 70 # maximum peak-to-peak amplitude
+    data = generate_data(n_samples, n_channels=1)
 
-    assert slow_scan(data, window, maxamp) == quick_scan(data, window, maxamp)
+    slow_result = slow_scan(data, window, max_amplitude)
+    quick_result = quick_scan(data, window, max_amplitude)
+
+    assert (slow_result == quick_result).all()
 
 def test_quick_scan_speed_random_data():
     '''Test execution time of quick scan against execution time of slow_scan,
