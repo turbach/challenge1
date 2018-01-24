@@ -30,7 +30,7 @@
 '''
 import numpy as np
 from scipy import signal
-from tools import quick_scan, slow_scan, demo_plot
+from tools import slow_scan, demo_plot
 
 do_demo = 1 # boolean to switch between demo/debugging and simulated data
 
